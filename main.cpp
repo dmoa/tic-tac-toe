@@ -15,9 +15,7 @@ int main() {
     const int yQuadrant = 3;
 
     RectangleShape *board [xQuadrant][yQuadrant];
-
     const int boxLength = WW / xQuadrant;
-
     for (int x = 0; x < xQuadrant; x++) {
         for (int y = 0; y < yQuadrant; y++) {
             board[x][y] = new RectangleShape(Vector2f(boxLength, boxLength));
@@ -26,6 +24,15 @@ int main() {
             board[x][y]->setOutlineColor(Color::White);
             board[x][y]->setOutlineThickness(5);
             board[x][y]->setFillColor(Color::Black);
+        }
+    }
+
+    RenderTexture texture;
+    texture.create(WW, WH);
+
+    for (int x = 0; x < xQuadrant; x++) {
+        for (int y = 0; y < yQuadrant; y++) {
+            texture.draw(*board[x][y]);
         }
     }
 
@@ -41,15 +48,9 @@ int main() {
             }
         }
         window.clear();
-
-        for (int x = 0; x < xQuadrant; x++) {
-            for (int y = 0; y < yQuadrant; y++) {
-                window.draw(*board[x][y]);
-            }
-        }
-
+        Sprite sprite(texture.getTexture());
+        window.draw(sprite);
         window.display();
-
     }
 
     return 0;
