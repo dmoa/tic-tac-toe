@@ -8,6 +8,7 @@ const int WH = 300;
 int main() {
 
     RenderWindow window(VideoMode(WW, WH), "tic-tac-toe");
+    window.setVerticalSyncEnabled(true);
 
     Event event;
 
@@ -27,14 +28,16 @@ int main() {
         }
     }
 
-    RenderTexture texture;
-    texture.create(WW, WH);
+    RenderTexture bgTexture;
+    bgTexture.create(WW, WH);
 
     for (int x = 0; x < xQuadrant; x++) {
         for (int y = 0; y < yQuadrant; y++) {
-            texture.draw(*board[x][y]);
+            bgTexture.draw(*board[x][y]);
         }
     }
+
+    Sprite background(bgTexture.getTexture());
 
     while (window.isOpen()) {
         while (window.pollEvent(event)) {
@@ -48,8 +51,7 @@ int main() {
             }
         }
         window.clear();
-        Sprite sprite(texture.getTexture());
-        window.draw(sprite);
+        window.draw(background);
         window.display();
     }
 
