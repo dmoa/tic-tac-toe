@@ -1,10 +1,17 @@
 #include <SFML/Graphics.hpp>
 #include <string>
+#include <math.h>
 
 using namespace sf;
 
 const int WW = 300;
 const int WH = 300;
+
+//takes array?
+void mouseClicked(int mouseX, int mouseY, Text grid) {
+    int gridX = (int) (WW / mouseX);
+    int gridY = (int) (WH / mouseY);
+}
 
 int main() {
 
@@ -42,29 +49,23 @@ int main() {
     Sprite background(bgTexture.getTexture());
 
     Font fontastic;
-    fontastic.loadFromFile("KOMIKAP_.tff");
+    fontastic.loadFromFile("font.ttf");
 
-    if (!fontastic.loadFromFile("KOMIKAP_.tff")) { printf("RIPX"); }
+    if (!fontastic.loadFromFile("font.ttf")) { printf("RIPX"); }
 
-    Text exampleText;
-    exampleText.setFont(fontastic);
-    exampleText.setString("abcdefghiklmnopqrstuvwxyz");
-    exampleText.setFillColor(Color::Red);
-    exampleText.setCharacterSize(32);
-    exampleText.setPosition(150.0, 150.0);
+    sf::Text boomshakalaka;
+    boomshakalaka.setFont(fontastic);
+    boomshakalaka.setCharacterSize(10);
+    boomshakalaka.setStyle(sf::Text::Bold);
+    boomshakalaka.setFillColor(sf::Color::White);
+    boomshakalaka.setPosition(0,0);
 
-    sf::Text atext;
-    atext.setFont(fontastic);
-    atext.setCharacterSize(20);
-    atext.setStyle(sf::Text::Bold);
-    atext.setFillColor(sf::Color::White);
-    atext.setPosition(0,0);
-
-    atext.setString("WOWOWOW");
+    bool player1go = true;
+    int xoSize = (int) WW / xQuadrant;
 
     while (window.isOpen()) {
         float framerate = 1.0 / (clock.getElapsedTime().asSeconds());
-        //boomshakalaka.setString(std::to_string(framerate));
+        boomshakalaka.setString(std::to_string((int)framerate));
         clock.restart();
 
         while (window.pollEvent(event)) {
@@ -76,13 +77,17 @@ int main() {
                     window.close();
                 }
             }
+            if (event.type == sf::Event::MouseButtonPressed) {
+                if (event.mouseButton.button == Mouse::Left) {
+                    void mouseClicked((int) event.mouseMove.x, (int) event.mouseMove.y);
+                }
+            }
         }
+
         window.clear();
         window.draw(background);
-    //    window.draw(boomshakalaka);
-        window.draw(atext);
+        window.draw(boomshakalaka);
         window.display();
-        //printf("%f\n", framerate);
     }
 
     return 0;
