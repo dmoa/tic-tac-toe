@@ -4,13 +4,15 @@
 
 using namespace sf;
 
-const int WW = 300;
-const int WH = 300;
+int WW = 300;
+int WH = 300;
+
 
 //takes array?
-void mouseClicked(int mouseX, int mouseY, Text grid) {
-    int gridX = (int) (WW / mouseX);
-    int gridY = (int) (WH / mouseY);
+void mouseClicked(int mouseX, int mouseY, Text *grid) {
+     int gridX = (int) (WW / mouseX);
+     int gridY = (int) (WH / mouseY);
+
 }
 
 int main() {
@@ -51,7 +53,9 @@ int main() {
     Font fontastic;
     fontastic.loadFromFile("font.ttf");
 
-    if (!fontastic.loadFromFile("font.ttf")) { printf("RIPX"); }
+    if (!fontastic.loadFromFile("font.ttf")) {
+        printf("RIPX");
+    }
 
     sf::Text boomshakalaka;
     boomshakalaka.setFont(fontastic);
@@ -62,6 +66,22 @@ int main() {
 
     bool player1go = true;
     int xoSize = (int) WW / xQuadrant;
+
+    Text grid[xQuadrant][yQuadrant];
+
+
+    // HW, MAKE IT ONE DIMENSIONAL
+    for (int i = 0; i < xQuadrant; i++) {
+        for (int j = 0; j < yQuadrant; j++) {
+            grid[i][j].setFont(fontastic);
+            grid[i][j].setString(" ");
+            grid[i][j].setCharacterSize(xoSize);
+            grid[i][j].setStyle(sf::Text::Bold);
+            grid[i][j].setFillColor(sf::Color::White);
+            float length = grid[i][j].getLocalBounds().width;
+            grid[i][j].setPosition(i * boxLength + (boxLength - length) / 2, j * boxLength - (boxLength - length) / 2);
+        }
+    }
 
     while (window.isOpen()) {
         float framerate = 1.0 / (clock.getElapsedTime().asSeconds());
@@ -79,7 +99,9 @@ int main() {
             }
             if (event.type == sf::Event::MouseButtonPressed) {
                 if (event.mouseButton.button == Mouse::Left) {
-                    void mouseClicked((int) event.mouseMove.x, (int) event.mouseMove.y);
+                     // int mouseX = (int) event.mouseMove.x;
+                     // int mouseY = (int) event.mouseMove.y;
+                     mouseClicked(event.mouseButton.x, event.mouseButton.y, grid);
                 }
             }
         }
@@ -87,6 +109,11 @@ int main() {
         window.clear();
         window.draw(background);
         window.draw(boomshakalaka);
+        for (int i = 0; i < xQuadrant; i++) {
+            for (int j = 0; j < yQuadrant; j++) {
+                window.draw(grid[i][j]);
+            }
+        }
         window.display();
     }
 
