@@ -1,3 +1,6 @@
+// replace text grid with image grid
+//
+
 #include <SFML/Graphics.hpp>
 #include <string>
 #include <math.h>
@@ -7,12 +10,32 @@ using namespace sf;
 int WW = 300;
 int WH = 300;
 
+const int xQuadrant = 3;
+const int yQuadrant = 3;
+
+const int boxLength = WW / xQuadrant;
+
+bool player1go = true;
+// X always go first! (i think)
 
 //takes array?
 void mouseClicked(int mouseX, int mouseY, Text *grid) {
-     int gridX = (int) (WW / mouseX);
-     int gridY = (int) (WH / mouseY);
-
+    int gridX = (int) rint(mouseX / boxLength);
+    int gridY = (int) rint(mouseY / boxLength);
+    int quadrantIndex = (gridY) * xQuadrant + gridX;
+    int drawX = gridX * boxLength;
+    int drawY = gridY * boxLength;
+    if (grid[quadrantIndex].getString() == " ") {
+        if (player1go) {
+            grid[quadrantIndex].setString("x");
+        } else {
+            grid[quadrantIndex].setString("0");
+        }
+        player1go = !player1go;
+        grid[quadrantIndex].setPosition(drawX, drawY);
+    }
+    printf("drawX: %i drawY: %i", drawX, drawY);
+    //printf("x: %i, y: %i, index: %i \n", gridX, gridY, quadrantIndex);
 }
 
 int main() {
@@ -23,29 +46,21 @@ int main() {
     Event event;
     Clock clock;
 
-    const int xQuadrant = 3;
-    const int yQuadrant = 3;
-
-    RectangleShape *board [xQuadrant][yQuadrant];
-    const int boxLength = WW / xQuadrant;
-    for (int x = 0; x < xQuadrant; x++) {
-        for (int y = 0; y < yQuadrant; y++) {
-            board[x][y] = new RectangleShape(Vector2f(boxLength, boxLength));
-            board[x][y]->setSize(Vector2f(boxLength, boxLength));
-            board[x][y]->setPosition(x * boxLength, y * boxLength);
-            board[x][y]->setOutlineColor(Color::White);
-            board[x][y]->setOutlineThickness(5);
-            board[x][y]->setFillColor(Color::Black);
-        }
+    RectangleShape *board [xQuadrant * yQuadrant];
+    for (int i = 0; i < xQuadrant * yQuadrant; i++) {
+        board[i] = new RectangleShape(Vector2f(boxLength, boxLength));
+        board[i]->setSize(Vector2f(boxLength, boxLength));
+        board[i]->setPosition((i % xQuadrant) * boxLength, ceil(i / xQuadrant) * boxLength);
+        board[i]->setOutlineColor(Color::White);
+        board[i]->setOutlineThickness(5);
+        board[i]->setFillColor(Color::Black);
     }
 
     RenderTexture bgTexture;
     bgTexture.create(WW, WH);
 
-    for (int x = 0; x < xQuadrant; x++) {
-        for (int y = 0; y < yQuadrant; y++) {
-            bgTexture.draw(*board[x][y]);
-        }
+    for (int i = 0; i < xQuadrant * yQuadrant; i++) {
+        bgTexture.draw(*board[i]);
     }
 
     Sprite background(bgTexture.getTexture());
@@ -64,22 +79,20 @@ int main() {
     boomshakalaka.setFillColor(sf::Color::White);
     boomshakalaka.setPosition(0,0);
 
-    bool player1go = true;
     int xoSize = (int) WW / xQuadrant;
 
-    Text grid[xQuadrant][yQuadrant];
+    Text grid[xQuadrant * yQuadrant];
 
 
-    // HW, MAKE IT ONE DIMENSIONAL
     for (int i = 0; i < xQuadrant; i++) {
         for (int j = 0; j < yQuadrant; j++) {
-            grid[i][j].setFont(fontastic);
-            grid[i][j].setString(" ");
-            grid[i][j].setCharacterSize(xoSize);
-            grid[i][j].setStyle(sf::Text::Bold);
-            grid[i][j].setFillColor(sf::Color::White);
-            float length = grid[i][j].getLocalBounds().width;
-            grid[i][j].setPosition(i * boxLength + (boxLength - length) / 2, j * boxLength - (boxLength - length) / 2);
+            grid[i * j].setFont(fontastic);
+            grid[i * j].setString(" ");
+            grid[i * j].setCharacterSize(xoSize);
+            grid[i * j].setStyle(sf::Text::Bold);
+            grid[i * j].setFillColor(sf::Color::White);
+            float length = grid[i * j].getLocalBounds().width;
+            //grid[i * j].setPosition(i * boxLength, j * boxLength);
         }
     }
 
@@ -109,12 +122,11 @@ int main() {
         window.clear();
         window.draw(background);
         window.draw(boomshakalaka);
-        for (int i = 0; i < xQuadrant; i++) {
-            for (int j = 0; j < yQuadrant; j++) {
-                window.draw(grid[i][j]);
-            }
+        for (int i = 0; i < xQuadrant * yQuadrant; i++) {
+            window.draw(grid[i]);
         }
         window.display();
+        fflush(stdout);
     }
 
     return 0;
