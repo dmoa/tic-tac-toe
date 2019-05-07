@@ -16,29 +16,42 @@ const int yQuadrant = 3;
 const int boxLength = WW / xQuadrant;
 
 bool player1go = true;
-// X always go first! (i think)
 
-//takes array?
-void mouseClicked(int mouseX, int mouseY, Text *grid) {
-    int gridX = (int) rint(mouseX / boxLength);
-    int gridY = (int) rint(mouseY / boxLength);
-    int quadrantIndex = (gridY) * xQuadrant + gridX;
+struct gridDataStruct
+{
+    Vector2f coords = Vector2f(0, 0);
+    bool isNought = false;
+};
+
+gridDataStruct gridData[xQuadrant * yQuadrant];
+
+void mouseClicked(int mouseX, int mouseY, gridDataStruct *grid)
+{
+    int gridX = (int)rint(mouseX / boxLength);
+    int gridY = (int)rint(mouseY / boxLength);
+    int quadrantIndex = (gridY)*xQuadrant + gridX;
     int drawX = gridX * boxLength;
     int drawY = gridY * boxLength;
-    if (grid[quadrantIndex].getString() == " ") {
-        if (player1go) {
-            grid[quadrantIndex].setString("x");
-        } else {
-            grid[quadrantIndex].setString("0");
-        }
+
+    if (gridData[quadrantIndex].coords.x < 0)
+    {
+        gridData[quadrantIndex].isNought = player1go;
+        gridData[quadrantIndex].coords.x = drawX;
+        gridData[quadrantIndex].coords.y = drawY;
         player1go = !player1go;
-        grid[quadrantIndex].setPosition(drawX, drawY);
     }
     printf("drawX: %i drawY: %i", drawX, drawY);
     //printf("x: %i, y: %i, index: %i \n", gridX, gridY, quadrantIndex);
 }
 
-int main() {
+int main()
+{
+    for (int i = 0; i < xQuadrant * yQuadrant; i++)
+    {
+        gridData[i].coords.x = -100;
+        gridData[i].coords.y = -100;
+        gridData[i].isNought = false;
+    }
 
     RenderWindow window(VideoMode(WW, WH), "tic-tac-toe");
     window.setFramerateLimit(144);
@@ -46,8 +59,9 @@ int main() {
     Event event;
     Clock clock;
 
-    RectangleShape *board [xQuadrant * yQuadrant];
-    for (int i = 0; i < xQuadrant * yQuadrant; i++) {
+    RectangleShape *board[xQuadrant * yQuadrant];
+    for (int i = 0; i < xQuadrant * yQuadrant; i++)
+    {
         board[i] = new RectangleShape(Vector2f(boxLength, boxLength));
         board[i]->setSize(Vector2f(boxLength, boxLength));
         board[i]->setPosition((i % xQuadrant) * boxLength, ceil(i / xQuadrant) * boxLength);
@@ -59,7 +73,8 @@ int main() {
     RenderTexture bgTexture;
     bgTexture.create(WW, WH);
 
-    for (int i = 0; i < xQuadrant * yQuadrant; i++) {
+    for (int i = 0; i < xQuadrant * yQuadrant; i++)
+    {
         bgTexture.draw(*board[i]);
     }
 
@@ -68,8 +83,9 @@ int main() {
     Font fontastic;
     fontastic.loadFromFile("font.ttf");
 
-    if (!fontastic.loadFromFile("font.ttf")) {
-        printf("RIPX");
+    if (!fontastic.loadFromFile("font.ttf"))
+    {
+        printf("font not loading");
     }
 
     sf::Text boomshakalaka;
@@ -77,44 +93,68 @@ int main() {
     boomshakalaka.setCharacterSize(10);
     boomshakalaka.setStyle(sf::Text::Bold);
     boomshakalaka.setFillColor(sf::Color::White);
-    boomshakalaka.setPosition(0,0);
+    boomshakalaka.setPosition(0, 0);
 
-    int xoSize = (int) WW / xQuadrant;
+    // int xoSize = (int)WW / xQuadrant;
 
-    Text grid[xQuadrant * yQuadrant];
+    // Text grid[xQuadrant * yQuadrant];
 
+    // for (int i = 0; i < xQuadrant; i++)
+    // {
+    //     for (int j = 0; j < yQuadrant; j++)
+    //     {
+    //         grid[i * j].setFont(fontastic);
+    //         grid[i * j].setString(" ");
+    //         grid[i * j].setCharacterSize(xoSize);
+    //         grid[i * j].setStyle(sf::Text::Bold);
+    //         grid[i * j].setFillColor(sf::Color::White);
+    //         float length = grid[i * j].getLocalBounds().width;
+    //         //grid[i * j].setPosition(i * boxLength, j * boxLength);
+    //     }
+    // }
 
-    for (int i = 0; i < xQuadrant; i++) {
-        for (int j = 0; j < yQuadrant; j++) {
-            grid[i * j].setFont(fontastic);
-            grid[i * j].setString(" ");
-            grid[i * j].setCharacterSize(xoSize);
-            grid[i * j].setStyle(sf::Text::Bold);
-            grid[i * j].setFillColor(sf::Color::White);
-            float length = grid[i * j].getLocalBounds().width;
-            //grid[i * j].setPosition(i * boxLength, j * boxLength);
-        }
+    Texture XImage;
+    if (!XImage.loadFromFile("cross.png"))
+    {
+        printf("XImage not loaded");
     }
 
-    while (window.isOpen()) {
+    Sprite XSprite(XImage);
+
+    Texture OImage;
+    if (!OImage.loadFromFile("nought.png"))
+    {
+        printf("OImage not loaded");
+    }
+
+    Sprite OSprite(OImage);
+
+    while (window.isOpen())
+    {
         float framerate = 1.0 / (clock.getElapsedTime().asSeconds());
         boomshakalaka.setString(std::to_string((int)framerate));
         clock.restart();
 
-        while (window.pollEvent(event)) {
-            if (event.type == sf::Event::EventType::Closed) {
+        while (window.pollEvent(event))
+        {
+            if (event.type == sf::Event::EventType::Closed)
+            {
                 window.close();
             }
-            if (event.type == Event::KeyPressed) {
-                if (event.key.code == Keyboard::Key::Escape) {
+            if (event.type == Event::KeyPressed)
+            {
+                if (event.key.code == Keyboard::Key::Escape)
+                {
                     window.close();
                 }
             }
-            if (event.type == sf::Event::MouseButtonPressed) {
-                if (event.mouseButton.button == Mouse::Left) {
-                     // int mouseX = (int) event.mouseMove.x;
-                     // int mouseY = (int) event.mouseMove.y;
-                     mouseClicked(event.mouseButton.x, event.mouseButton.y, grid);
+            if (event.type == sf::Event::MouseButtonPressed)
+            {
+                if (event.mouseButton.button == Mouse::Left)
+                {
+                    // int mouseX = (int) event.mouseMove.x;
+                    // int mouseY = (int) event.mouseMove.y;
+                    mouseClicked(event.mouseButton.x, event.mouseButton.y, gridData);
                 }
             }
         }
@@ -122,8 +162,18 @@ int main() {
         window.clear();
         window.draw(background);
         window.draw(boomshakalaka);
-        for (int i = 0; i < xQuadrant * yQuadrant; i++) {
-            window.draw(grid[i]);
+        for (int i = 0; i < xQuadrant * yQuadrant; i++)
+        {
+            if (gridData[i].isNought)
+            {
+                OSprite.setPosition(gridData[i].coords);
+                window.draw(OSprite);
+            }
+            else
+            {
+                XSprite.setPosition(gridData[i].coords);
+                window.draw(XSprite);
+            }
         }
         window.display();
         fflush(stdout);
